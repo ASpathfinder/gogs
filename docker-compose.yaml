@@ -1,0 +1,47 @@
+services:
+  gogs_main:
+    image: kellyalsa/gogs:0.12.3
+    working_dir: /app
+    environment:
+      GOGS_CONFIG_FILE_PATH: '/app/conf/app.ini'
+    volumes:
+      - ./instances/main:/app
+    ports:
+      - "3004:3000"
+
+  gogs_external:
+    image: kellyalsa/gogs:0.12.3
+    depends_on:
+      - gogs_external_db
+    working_dir: /app
+    environment:
+      GOGS_CONFIG_FILE_PATH: '/app/conf/app.ini'
+    volumes:
+      - ./instances/external:/app
+    ports:
+      - "3005:3000"
+
+  gogs_main_db:
+    image: mariadb:10.3.34
+    environment:
+      - MARIADB_ROOT_PASSWORD=12345678
+      - MARIADB_DATABASE=gogs_main
+    volumes:
+      - ./instances/main/sql:/docker-entrypoint-initdb.d
+      - ./instances/main/database:/var/lib/mysql:Z
+    ports:
+      - "20305:3306"
+
+  gogs_external_db:
+    image: mariadb:10.3.34
+    environment:
+      - MARIADB_ROOT_PASSWORD=12345678
+      - MARIADB_DATABASE=gogs_external
+    volumes:
+      - ./instances/external/sql:/docker-entrypoint-initdb.d
+      - ./instances/external/database:/var/lib/mysql:Z
+    ports:
+      - "20306:3306"
+
+
+
