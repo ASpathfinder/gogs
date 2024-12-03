@@ -1,4 +1,12 @@
 services:
+  gogs_restore:
+    image: kellyalsa/gogs:0.12.3
+    working_dir: /app
+    entrypoint: tail -f /dev/null
+    volumes:
+      - ./instances/main:/app
+      - /pan_data/Upload/gogs_backup:/backup
+
   gogs_main:
     image: kellyalsa/gogs:0.12.3
     working_dir: /app
@@ -27,7 +35,6 @@ services:
       - MARIADB_ROOT_PASSWORD=12345678
       - MARIADB_DATABASE=gogs_main
     volumes:
-      - ./instances/main/sql:/docker-entrypoint-initdb.d
       - ./instances/main/database:/var/lib/mysql:Z
     ports:
       - "20305:3306"
@@ -38,10 +45,6 @@ services:
       - MARIADB_ROOT_PASSWORD=12345678
       - MARIADB_DATABASE=gogs_external
     volumes:
-      - ./instances/external/sql:/docker-entrypoint-initdb.d
       - ./instances/external/database:/var/lib/mysql:Z
     ports:
       - "20306:3306"
-
-
-
