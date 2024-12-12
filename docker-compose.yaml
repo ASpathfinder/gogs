@@ -1,33 +1,41 @@
 services:
-  gogs_restore:
+  gogs_main_restore:
     image: kellyalsa/gogs:0.12.3
     working_dir: /app
     entrypoint: tail -f /dev/null
     volumes:
       - ./instances/main:/app
-      - /pan_data/Upload/gogs_backup:/backup
+      - /pan_data/Upload/gogs_backup/main:/backup
 
-  gogs_main:
+  gogs_external_restore:
     image: kellyalsa/gogs:0.12.3
     working_dir: /app
-    environment:
-      GOGS_CONFIG_FILE_PATH: '/app/conf/app.ini'
-    volumes:
-      - ./instances/main:/app
-    ports:
-      - "3004:3000"
-
-  gogs_external:
-    image: kellyalsa/gogs:0.12.3
-    depends_on:
-      - gogs_external_db
-    working_dir: /app
-    environment:
-      GOGS_CONFIG_FILE_PATH: '/app/conf/app.ini'
+    entrypoint: tail -f /dev/null
     volumes:
       - ./instances/external:/app
+      - /pan_data/Upload/gogs_backup/external:/backup
+
+  gogs_main:
+    image: gogs/gogs:0.12.3
+    working_dir: /app
+    volumes:
+      - ./gogs_instances/main:/data
+    environment:
+      TZ: Asia/Shanghai
+    ports:
+      - "3004:3000"
+      - "10022:22"
+
+  gogs_external:
+    image: gogs/gogs:0.12.3
+    working_dir: /app
+    volumes:
+      - ./gogs_instances/external:/data
+    environment:
+      TZ: Asia/Shanghai
     ports:
       - "3005:3000"
+      - "10023:22"
 
   gogs_main_db:
     image: mariadb:10.3.34
